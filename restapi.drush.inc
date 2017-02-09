@@ -24,11 +24,13 @@ function restapi_drush_command() {
  */
 function drush_restapi_list() {
 
+  $endpoints   = 0;
   $resources   = restapi_get_resources();
   $last_module = NULL;
   $rows        = [
     [dt('Module'), dt('Path'), dt('Class')],
   ];
+  $methods     = ['delete', 'get', 'patch', 'put', 'post'];
 
   foreach($resources as $resource) {
     if ($last_module != $resource->getModule()) {
@@ -38,11 +40,16 @@ function drush_restapi_list() {
       $module = '';
     }
     $rows[] = [$module, $resource->getPath(), $resource->getClass()];
+
+    foreach ($methods as $method) {
+      $endpoints += method_exists($resource->getClass(), $method) ? 1 : 0;
+    }
   }
 
   drush_print_table($rows, TRUE);
-  drush_log(dt('Displaying !count total resources', [
+  drush_log(dt('Displaying !count total resources with !endpoints endpoints.', [
     '!count' => count($resources),
+    '!endpoints' => $endpoints,
   ]), 'ok');
 
 }
