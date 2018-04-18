@@ -387,8 +387,9 @@ function restapi_delivery_callback($response) {
 
   // For requests in the browser, we'll try to show the output in a more
   // pleasant way.
-  $accept = $request->getHeaderLine('Accept');
-  if ($accept) {
+  $accept      = $request->getHeaderLine('Accept');
+  $is_download = _restapi_is_download_response($response);
+  if ($accept && !$is_download) {
 
     $negotiator = new Negotiator();
     $priorities = ['application/json', 'text/html'];
@@ -728,4 +729,43 @@ function _restapi_get_versioned_method(ResourceConfigurationInterface $resource,
   }
 
   return method_exists($resource->getClass(), $method) ? $method : NULL;
+}
+
+
+/**
+ * Helper function to determine whether the response is a file download.
+ *
+ * @param ResponseInterface $response
+ *   The response.
+ *
+ * @return boolean
+ *   Returns TRUE when the response is a download, FALSE otherwise.
+ *
+ */
+function _restapi_is_download_response(ResponseInterface $response) {
+
+  $is_download = FALSE;
+
+  // If this content transfer encoding is a binary file, then this is a download.
+  $content_encoding = array_map('strtolower', $response->getHeader('Content-Transfer-Encoding'));
+  if (in_array('binary', $content_encoding)) {
+    $is_download = TRUE;
+  }
+
+  // If content disposition specifies an attachment, then this is a download.
+  $content_disposition = array_filter($response->getHeader('Content-Disposition'), function ($header) {
+    return strpos(strtolower($header), 'attachment') !== FALSE;
+  });
+
+  if (!empty($content_disposition)) {
+    $is_download = TRUE;
+  }
+
+  // If content description specifies file transfer then this is a download.
+  $content_description = array_map('strtolower', $response->getHeader('Content-Description'));
+  if (in_array('file transfer', $content_description)) {
+    $is_download = TRUE;
+  }
+
+  return $is_download;
 }
