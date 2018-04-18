@@ -744,28 +744,10 @@ function _restapi_get_versioned_method(ResourceConfigurationInterface $resource,
  */
 function _restapi_is_download_response(ResponseInterface $response) {
 
-  $is_download = FALSE;
-
-  // If this content transfer encoding is a binary file, then this is a download.
-  $content_encoding = array_map('strtolower', $response->getHeader('Content-Transfer-Encoding'));
-  if (in_array('binary', $content_encoding)) {
-    $is_download = TRUE;
-  }
-
-  // If content disposition specifies an attachment, then this is a download.
+  // @see: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Disposition
   $content_disposition = array_filter($response->getHeader('Content-Disposition'), function ($header) {
     return strpos(strtolower($header), 'attachment') !== FALSE;
   });
 
-  if (!empty($content_disposition)) {
-    $is_download = TRUE;
-  }
-
-  // If content description specifies file transfer then this is a download.
-  $content_description = array_map('strtolower', $response->getHeader('Content-Description'));
-  if (in_array('file transfer', $content_description)) {
-    $is_download = TRUE;
-  }
-
-  return $is_download;
+  return !empty($content_disposition);
 }
