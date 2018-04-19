@@ -388,7 +388,8 @@ function restapi_delivery_callback($response) {
   // For requests in the browser, we'll try to show the output in a more
   // pleasant way.
   $accept      = $request->getHeaderLine('Accept');
-  $is_download = _restapi_is_download_response($response);
+  // @see: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Disposition
+  $is_download = stripos($request->getHeaderLine('Content-Disposition'), 'attachment') !== FALSE;
   if ($accept && !$is_download) {
 
     $negotiator = new Negotiator();
@@ -729,25 +730,4 @@ function _restapi_get_versioned_method(ResourceConfigurationInterface $resource,
   }
 
   return method_exists($resource->getClass(), $method) ? $method : NULL;
-}
-
-
-/**
- * Helper function to determine whether the response is a file download.
- *
- * @param ResponseInterface $response
- *   The response.
- *
- * @return boolean
- *   Returns TRUE when the response is a download, FALSE otherwise.
- *
- */
-function _restapi_is_download_response(ResponseInterface $response) {
-
-  // @see: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Disposition
-  $content_disposition = array_filter($response->getHeader('Content-Disposition'), function ($header) {
-    return strpos(strtolower($header), 'attachment') !== FALSE;
-  });
-
-  return !empty($content_disposition);
 }
