@@ -6,9 +6,9 @@ use Drupal\restapi\Exception\InvalidParametersException;
 use Drupal\restapi\Exception\MissingParametersException;
 use Drupal\restapi\Exception\RestApiException;
 use Drupal\restapi\Exception\UnauthorizedException;
+use Drupal\restapi\JsonResponse as RestapiJsonResponse;
 use Exception;
 use Psr\Http\Message\ResponseInterface;
-use Drupal\restapi\JsonResponse as RestapiJsonResponse;
 use Zend\Diactoros\Response\JsonResponse;
 
 /**
