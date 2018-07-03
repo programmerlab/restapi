@@ -8,6 +8,7 @@ use Drupal\restapi\Exception\RestApiException;
 use Drupal\restapi\Exception\UnauthorizedException;
 use Exception;
 use Psr\Http\Message\ResponseInterface;
+use Drupal\restapi\JsonResponse as RestapiJsonResponse;
 use Zend\Diactoros\Response\JsonResponse;
 
 /**
@@ -204,7 +205,7 @@ class Api {
       'error'   => $code,
       'message' => $message,
     ];
-    return JsonResponse::create($data, $status);
+    return RestapiJsonResponse::create($data, $status);
   }
 
 
